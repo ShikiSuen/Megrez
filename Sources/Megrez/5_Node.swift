@@ -231,10 +231,11 @@ extension Array where Element == Megrez.Node {
     let cursor = Swift.max(0, cursor) // 防呆
     nilReturn = cursor ..< cursor
     // 下文按道理來講不應該會出現 nilReturn。
-    guard let rearNodeID = nodeBorderPointDictPair.cursorRegionMap[cursor] else { return nilReturn }
-    guard let rearIndex = nodeBorderPointDictPair.regionCursorMap[rearNodeID]
+    let mapPair = nodeBorderPointDictPair
+    guard let rearNodeID = mapPair.cursorRegionMap[cursor] else { return nilReturn }
+    guard let rearIndex = mapPair.regionCursorMap[rearNodeID]
     else { return nilReturn }
-    guard let frontIndex = nodeBorderPointDictPair.regionCursorMap[rearNodeID + 1]
+    guard let frontIndex = mapPair.regionCursorMap[rearNodeID + 1]
     else { return nilReturn }
     return rearIndex ..< frontIndex
   }
