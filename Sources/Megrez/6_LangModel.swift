@@ -33,7 +33,7 @@ extension Megrez.Compositor {
     /// - Parameter key: 給定的索引鍵字串。
     /// - Returns: 對應的經過穩定排序的單元圖陣列。
     public func unigramsFor(keyArray: [String]) -> [Megrez.Unigram] {
-      langModel.unigramsFor(keyArray: keyArray).stableSorted { $0.score > $1.score }
+      langModel.unigramsFor(keyArray: keyArray).sorted { $0.score > $1.score }
     }
 
     /// 根據給定的索引鍵來確認各個資料庫陣列內是否存在對應的資料。
@@ -46,27 +46,5 @@ extension Megrez.Compositor {
     // MARK: Private
 
     private let langModel: LangModelProtocol
-  }
-}
-
-// MARK: - Stable Sort Extension
-
-// Reference: https://stackoverflow.com/a/50545761/4162914
-
-extension Sequence {
-  /// Return a stable-sorted collection.
-  ///
-  /// - Parameter areInIncreasingOrder: Return nil when two element are equal.
-  /// - Returns: The sorted collection.
-  fileprivate func stableSorted(
-    by areInIncreasingOrder: (Element, Element) throws -> Bool
-  )
-    rethrows -> [Element] {
-    try enumerated()
-      .sorted { a, b -> Bool in
-        try areInIncreasingOrder(a.element, b.element)
-          || (a.offset < b.offset && !areInIncreasingOrder(b.element, a.element))
-      }
-      .map(\.element)
   }
 }
