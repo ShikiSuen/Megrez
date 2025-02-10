@@ -32,11 +32,6 @@ extension Megrez.SpanUnit {
   /// 該變數受該幅位的自身操作函式而被動更新。
   public var maxLength: Int { keys.max() ?? 0 }
 
-  /// （該變數為捷徑，代傳 Megrez.Compositor.maxSpanLength。）
-  private var maxSpanLength: Int { Megrez.Compositor.maxSpanLength }
-  /// 該幅位單元內的節點的幅位長度上限。
-  private var allowedLengths: ClosedRange<Int> { 1 ... maxSpanLength }
-
   // MARK: - Functions
 
   /// 往該幅位塞入一個節點。
@@ -45,20 +40,7 @@ extension Megrez.SpanUnit {
   /// - Returns: 該操作是否成功執行。
   @discardableResult
   public mutating func addNode(node: Megrez.Node) -> Bool {
-    guard allowedLengths.contains(node.spanLength) else { return false }
     self[node.spanLength] = node
-    return true
-  }
-
-  /// 丟掉任何不小於給定幅位長度的節點。
-  /// - Remark: 這個函式用來防呆。一般情況下用不到。
-  /// - Parameter length: 給定的幅位長度。
-  /// - Returns: 該操作是否成功執行。
-  @discardableResult
-  public mutating func dropNodesOfOrBeyond(length: Int) -> Bool {
-    guard allowedLengths.contains(length) else { return false }
-    let length = Swift.min(length, maxSpanLength)
-    (length ... maxSpanLength).forEach { self[$0] = nil }
     return true
   }
 }

@@ -35,21 +35,6 @@ final class MegrezTests: XCTestCase {
     XCTAssertEqual(span[2], nil)
     XCTAssertEqual(span[3], nil)
     XCTAssertEqual(span[Megrez.Compositor.maxSpanLength], nil)
-
-    span.addNode(node: n1)
-    span.addNode(node: n3)
-    span.dropNodesOfOrBeyond(length: 2)
-    XCTAssertEqual(span.maxLength, 1)
-    XCTAssertEqual(span[1], n1)
-    XCTAssertEqual(span[2], nil)
-    XCTAssertEqual(span[3], nil)
-    span.dropNodesOfOrBeyond(length: 1)
-    XCTAssertEqual(span.maxLength, 0)
-    XCTAssertEqual(span[1], nil)
-    let n114514 = Megrez.Node(spanLength: 114_514)
-    XCTAssertFalse(span.addNode(node: n114514))
-    XCTAssertNil(span[0])
-    XCTAssertNil(span[Megrez.Compositor.maxSpanLength + 1])
   }
 
   func test02_RankedLangModel() throws {
