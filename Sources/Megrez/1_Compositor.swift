@@ -129,11 +129,8 @@ extension Megrez {
     /// 將已經被插入的索引鍵陣列與幅位單元陣列（包括其內的節點）全部清空。
     /// 最近一次的爬軌結果陣列也會被清空。游標跳轉換算表也會被清空。
     public func clear() {
-      cursor = 0
-      marker = 0
-      keys.removeAll()
-      spans.removeAll()
-      walkedNodes.removeAll()
+      let oldSeparator = config.separator
+      config = .init(separator: oldSeparator)
     }
 
     /// 在游標位置插入給定的索引鍵。
