@@ -11,7 +11,7 @@ extension Megrez {
   ///
   /// 用於輸入法的話，給定的索引鍵可以是注音、且返回的資料值都是漢語字詞組合。該組字器
   /// 還可以用來對文章做分節處理：此時的索引鍵為漢字，返回的資料值則是漢語字詞分節組合。
-  public struct Compositor {
+  public final class Compositor {
     // MARK: Lifecycle
 
     /// 初期化一個組字器。
@@ -98,7 +98,7 @@ extension Megrez {
     /// - Remark: 因為 Node 不是 Struct，所以會在 Compositor 被拷貝的時候無法被真實複製。
     /// 這樣一來，Compositor 複製品當中的 Node 的變化會被反應到原先的 Compositor 身上。
     /// 這在某些情況下會造成意料之外的混亂情況，所以需要引入一個拷貝用的建構子。
-    public var hardCopy: Compositor { .init(from: self) }
+    public var copy: Compositor { .init(from: self) }
 
     /// 生成用以交給 GraphViz 診斷的資料檔案內容，純文字。
     public var dumpDOT: String {
@@ -128,7 +128,7 @@ extension Megrez {
     ///
     /// 將已經被插入的索引鍵陣列與幅位單元陣列（包括其內的節點）全部清空。
     /// 最近一次的爬軌結果陣列也會被清空。游標跳轉換算表也會被清空。
-    public mutating func clear() {
+    public func clear() {
       cursor = 0
       marker = 0
       keys.removeAll()
@@ -140,7 +140,7 @@ extension Megrez {
     /// - Parameter key: 要插入的索引鍵。
     /// - Returns: 該操作是否成功執行。
     @discardableResult
-    public mutating func insertKey(_ key: String) -> Bool {
+    public func insertKey(_ key: String) -> Bool {
       guard !key.isEmpty, key != separator,
             langModel.hasUnigramsFor(keyArray: [key]) else { return false }
       keys.insert(key, at: cursor)
@@ -163,7 +163,7 @@ extension Megrez {
     /// - Parameter direction: 指定方向（相對於文字輸入方向而言）。
     /// - Returns: 該操作是否成功執行。
     @discardableResult
-    public mutating func dropKey(direction: TypingDirection) -> Bool {
+    public func dropKey(direction: TypingDirection) -> Bool {
       let isBackSpace: Bool = direction == .rear ? true : false
       guard cursor != (isBackSpace ? 0 : keys.count) else { return false }
       keys.remove(at: cursor - (isBackSpace ? 1 : 0))
@@ -186,7 +186,7 @@ extension Megrez {
     /// 將標記游標交給敝引擎來管理。屆時，NSStringUtils 將徹底卸任。
     /// - Returns: 該操作是否順利完成。
     @discardableResult
-    public mutating func jumpCursorBySpan(
+    public func jumpCursorBySpan(
       to direction: TypingDirection,
       isMarker: Bool = false
     )
@@ -239,7 +239,7 @@ extension Megrez.Compositor {
   /// - Parameters:
   ///   - location: 給定的幅位座標。
   ///   - action: 指定是擴張還是縮減一個幅位。
-  private mutating func resizeGrid(at location: Int, do action: ResizeBehavior) {
+  private func resizeGrid(at location: Int, do action: ResizeBehavior) {
     let location = max(min(location, spans.count), 0) // 防呆
     switch action {
     case .expand:
@@ -283,7 +283,7 @@ extension Megrez.Compositor {
   ///            (XXXXXXX? <-被砍爛的節點
   /// ```
   /// - Parameter location: 給定的幅位座標。
-  mutating func dropWreckedNodes(at location: Int) {
+  func dropWreckedNodes(at location: Int) {
     let location = max(min(location, spans.count), 0) // 防呆
     guard !spans.isEmpty else { return }
     let affectedLength = Megrez.Compositor.maxSpanLength - 1
@@ -310,7 +310,7 @@ extension Megrez.Compositor {
   /// 該特性可以用於「在選字窗內屏蔽了某個詞之後，立刻生效」這樣的軟體功能需求的實現。
   /// - Returns: 新增或影響了多少個節點。如果返回「0」則表示可能發生了錯誤。
   @discardableResult
-  public mutating func update(updateExisting: Bool = false) -> Int {
+  public func update(updateExisting: Bool = false) -> Int {
     let maxSpanLength = Megrez.Compositor.maxSpanLength
     let rangeOfPositions = max(0, cursor - maxSpanLength) ..< min(
       cursor + maxSpanLength,

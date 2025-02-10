@@ -14,7 +14,7 @@ extension Megrez.Compositor {
   ///
   /// - Returns: 爬軌結果（已選字詞陣列）。
   @discardableResult
-  public mutating func walk() -> [Megrez.Node] {
+  public func walk() -> [Megrez.Node] {
     walkedNodes.removeAll()
     guard !spans.isEmpty else { return [] }
 
