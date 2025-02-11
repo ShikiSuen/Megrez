@@ -11,8 +11,9 @@ import Megrez
 class SimpleLM: LangModelProtocol {
   // MARK: Lifecycle
 
-  init(input: String, swapKeyValue: Bool = false) {
+  init(input: String, swapKeyValue: Bool = false, separator: String = "") {
     let sstream = input.components(separatedBy: "\n")
+    self.separator = separator
     sstream.forEach { line in
       if line.isEmpty || line.hasPrefix("#") {
         return
@@ -29,9 +30,10 @@ class SimpleLM: LangModelProtocol {
   // MARK: Internal
 
   var mutDatabase: [String: [Megrez.Unigram]] = [:]
+  var separator: String = ""
 
   func unigramsFor(keyArray: [String]) -> [Megrez.Unigram] {
-    if let f = mutDatabase[keyArray.joined()] {
+    if let f = mutDatabase[keyArray.joined(separator: separator)] {
       return f
     } else {
       return [Megrez.Unigram]().sorted { $0.score > $1.score }
@@ -39,7 +41,7 @@ class SimpleLM: LangModelProtocol {
   }
 
   func hasUnigramsFor(keyArray: [String]) -> Bool {
-    mutDatabase.keys.contains(keyArray.joined())
+    mutDatabase.keys.contains(keyArray.joined(separator: separator))
   }
 
   func trim(key: String, value: String) {

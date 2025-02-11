@@ -405,7 +405,7 @@ final class MegrezTests: XCTestCase {
     NSLog("// Stress test preparation begins.")
     let compositor = Megrez.Compositor(with: SimpleLM(input: strStressData))
     (0 ..< 1919).forEach { _ in
-      compositor.insertKey("yi")
+      compositor.insertKey("yi1")
     }
     NSLog("// Stress test started.")
     let startTime = CFAbsoluteTimeGetCurrent()
@@ -638,7 +638,7 @@ final class MegrezTests: XCTestCase {
     rawReadings.split(separator: " ").forEach { key in
       compositorA.insertKey(key.description)
     }
-    let compositorB = compositorA.hardCopy
+    let compositorB = compositorA.copy
     let resultA = compositorA.walk()
     let resultB = compositorB.walk()
     XCTAssertEqual(resultA, resultB)
