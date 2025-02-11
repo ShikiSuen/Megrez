@@ -38,7 +38,7 @@ extension Megrez {
     public enum ResizeBehavior { case expand, shrink }
 
     /// 多字讀音鍵當中用以分割漢字讀音的記號的預設值，是「-」。
-    public static var theSeparator: String = "-"
+    nonisolated(unsafe) public static var theSeparator: String = "-"
 
     public private(set) var config = CompositorConfig()
 
