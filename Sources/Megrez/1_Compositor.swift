@@ -141,7 +141,7 @@ extension Megrez {
       guard !key.isEmpty, key != separator,
             langModel.hasUnigramsFor(keyArray: [key]) else { return false }
       keys.insert(key, at: cursor)
-      let gridBackup = spans
+      let gridBackup = spans.map(\.hardCopy)
       resizeGrid(at: cursor, do: .expand)
       let nodesInserted = update()
       // 用來在 langModel.hasUnigramsFor() 結果不準確的時候防呆、恢復被搞壞的 spans。
