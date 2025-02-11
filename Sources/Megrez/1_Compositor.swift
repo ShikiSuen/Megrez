@@ -40,10 +40,13 @@ extension Megrez {
     /// 多字讀音鍵當中用以分割漢字讀音的記號的預設值，是「-」。
     public static var theSeparator: String = "-"
 
-    /// 該軌格內可以允許的最大幅位長度。
-    public static var maxSpanLength: Int = 10 { didSet { maxSpanLength = max(6, maxSpanLength) } }
-
     public private(set) var config = CompositorConfig()
+
+    /// 該軌格內可以允許的最大幅位長度。
+    public var maxSpanLength: Int {
+      get { config.maxSpanLength }
+      set { config.maxSpanLength = newValue }
+    }
 
     /// 最近一次爬軌結果。
     public var walkedNodes: [Node] {
@@ -283,11 +286,11 @@ extension Megrez.Compositor {
   func dropWreckedNodes(at location: Int) {
     let location = max(min(location, spans.count), 0) // 防呆
     guard !spans.isEmpty else { return }
-    let affectedLength = Megrez.Compositor.maxSpanLength - 1
+    let affectedLength = maxSpanLength - 1
     let begin = max(0, location - affectedLength)
     guard location >= begin else { return }
     (begin ..< location).forEach { delta in
-      ((location - delta + 1) ... Self.maxSpanLength).forEach { theLength in
+      ((location - delta + 1) ... maxSpanLength).forEach { theLength in
         spans[delta][theLength] = nil
       }
     }
@@ -299,7 +302,7 @@ extension Megrez.Compositor {
   /// - Returns: 新增或影響了多少個節點。如果返回「0」則表示可能發生了錯誤。
   @discardableResult
   public func update(updateExisting: Bool = false) -> Int {
-    let maxSpanLength = Megrez.Compositor.maxSpanLength
+    let maxSpanLength = maxSpanLength
     let rangeOfPositions = max(0, cursor - maxSpanLength) ..< min(
       cursor + maxSpanLength,
       keys.count
@@ -355,6 +358,9 @@ extension Megrez {
         marker = cursor
       }
     }
+
+    /// 該軌格內可以允許的最大幅位長度。
+    public var maxSpanLength: Int = 10 { didSet { maxSpanLength = max(6, maxSpanLength) } }
 
     /// 該組字器的標記器（副游標）位置。
     public var marker: Int = 0 { didSet { marker = max(0, min(marker, length)) } }

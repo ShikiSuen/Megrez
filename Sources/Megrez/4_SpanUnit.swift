@@ -31,18 +31,6 @@ extension Megrez.SpanUnit {
   /// 該幅位單元內的所有節點當中持有最長幅位的節點長度。
   /// 該變數受該幅位的自身操作函式而被動更新。
   public var maxLength: Int { keys.max() ?? 0 }
-
-  // MARK: - Functions
-
-  /// 往該幅位塞入一個節點。
-  /// - Remark: 這個函式用來防呆。一般情況下用不到。
-  /// - Parameter node: 要塞入的節點。
-  /// - Returns: 該操作是否成功執行。
-  @discardableResult
-  public mutating func addNode(node: Megrez.Node) -> Bool {
-    self[node.spanLength] = node
-    return true
-  }
 }
 
 // MARK: - Related Compositor Implementations.
@@ -63,7 +51,7 @@ extension Megrez.Compositor {
     }
 
     // 再獲取以當前位置結尾或開頭的節點。
-    let begin: Int = givenLocation - min(givenLocation, Megrez.Compositor.maxSpanLength - 1)
+    let begin: Int = givenLocation - min(givenLocation, maxSpanLength - 1)
     (begin ..< givenLocation).forEach { theLocation in
       let (A, B): (Int, Int) = (givenLocation - theLocation + 1, spans[theLocation].maxLength)
       guard A <= B else { return }

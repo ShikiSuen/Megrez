@@ -21,20 +21,18 @@ final class MegrezTests: XCTestCase {
       unigrams: langModel.unigramsFor(keyArray: ["gao1ke1ji4"])
     )
     XCTAssertEqual(span.maxLength, 0)
-    span.addNode(node: n1)
+    span[n1.spanLength] = n1
     XCTAssertEqual(span.maxLength, 1)
-    span.addNode(node: n3)
+    span[n3.spanLength] = n3
     XCTAssertEqual(span.maxLength, 3)
     XCTAssertEqual(span[1], n1)
     XCTAssertEqual(span[2], nil)
     XCTAssertEqual(span[3], n3)
-    XCTAssertEqual(span[Megrez.Compositor.maxSpanLength], nil)
     span.removeAll()
     XCTAssertEqual(span.maxLength, 0)
     XCTAssertEqual(span[1], nil)
     XCTAssertEqual(span[2], nil)
     XCTAssertEqual(span[3], nil)
-    XCTAssertEqual(span[Megrez.Compositor.maxSpanLength], nil)
   }
 
   func test02_RankedLangModel() throws {
