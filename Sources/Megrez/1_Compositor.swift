@@ -293,15 +293,6 @@ extension Megrez.Compositor {
     }
   }
 
-  /// 自索引鍵陣列獲取指定範圍的資料。
-  /// - Parameter range: 指定範圍。
-  /// - Returns: 拿到的資料。
-  private func getJoinedKeyArray(range: Range<Int>) -> [String] {
-    // 下面這句不能用 contains，不然會要求至少 macOS 13 Ventura。
-    guard range.upperBound <= keys.count, range.lowerBound >= 0 else { return [] }
-    return keys[range].map(\.description)
-  }
-
   /// 根據當前狀況更新整個組字器的節點文脈。
   /// - Parameter updateExisting: 是否根據目前的語言模型的資料狀態來對既有節點更新其內部的單元圖陣列資料。
   /// 該特性可以用於「在選字窗內屏蔽了某個詞之後，立刻生效」這樣的軟體功能需求的實現。
