@@ -132,8 +132,7 @@ extension Megrez {
     /// 將已經被插入的索引鍵陣列與幅位單元陣列（包括其內的節點）全部清空。
     /// 最近一次的爬軌結果陣列也會被清空。游標跳轉換算表也會被清空。
     public func clear() {
-      let oldSeparator = config.separator
-      config = .init(separator: oldSeparator)
+      config.clear()
     }
 
     /// 在游標位置插入給定的索引鍵。
@@ -381,6 +380,14 @@ extension Megrez {
       newCopy.walkedNodes = walkedNodes.map(\.copy)
       newCopy.spans = spans.map(\.hardCopy)
       return newCopy
+    }
+
+    public mutating func clear() {
+      walkedNodes.removeAll()
+      keys.removeAll()
+      spans.removeAll()
+      cursor = 0
+      marker = 0
     }
   }
 }
