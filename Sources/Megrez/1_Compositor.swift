@@ -107,19 +107,20 @@ extension Megrez {
     public var dumpDOT: String {
       var strOutput = "digraph {\ngraph [ rankdir=LR ];\nBOS;\n"
       spans.enumerated().forEach { p, span in
-        (0 ... span.maxLength).forEach { ni in
+        span.keys.sorted().forEach { ni in
           guard let np = span[ni] else { return }
-          if p == 0 { strOutput.append("BOS -> \(np.value);\n") }
-          strOutput.append("\(np.value);\n")
+          let npValue = np.value
+          if p == 0 { strOutput.append("BOS -> \(npValue);\n") }
+          strOutput.append("\(npValue);\n")
           if (p + ni) < spans.count {
             let destinationSpan = spans[p + ni]
-            (0 ... destinationSpan.maxLength).forEach { q in
-              guard let dn = destinationSpan[q] else { return }
-              strOutput.append(np.value + " -> " + dn.value + ";\n")
+            destinationSpan.keys.sorted().forEach { q in
+              guard let dnValue = destinationSpan[q]?.value else { return }
+              strOutput.append(npValue + " -> " + dnValue + ";\n")
             }
           }
           guard (p + ni) == spans.count else { return }
-          strOutput.append(np.value + " -> EOS;\n")
+          strOutput.append(npValue + " -> EOS;\n")
         }
       }
       strOutput.append("EOS;\n}\n")

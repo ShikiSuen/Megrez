@@ -12,7 +12,7 @@ extension StringProtocol {
     let targetArray = Array(target.description.unicodeScalars)
     guard !target.isEmpty else { return isEmpty }
     guard count >= target.count else { return false }
-    for index in 0 ..< selfArray.count {
+    for index in selfArray.indices {
       let range = index ..< (Swift.min(index + targetArray.count, selfArray.count))
       let ripped = Array(selfArray[range])
       if ripped == targetArray { return true }
@@ -26,7 +26,7 @@ extension StringProtocol {
     var result: [String] = []
     var buffer: [Unicode.Scalar] = []
     var sleepCount = 0
-    for index in 0 ..< selfArray.count {
+    for index in selfArray.indices {
       let currentChar = selfArray[index]
       let range = index ..< (Swift.min(index + arrSeparator.count, selfArray.count))
       let ripped = Array(selfArray[range])
@@ -52,7 +52,7 @@ extension StringProtocol {
     var result = ""
     var buffer: [Unicode.Scalar] = []
     var sleepCount = 0
-    for index in 0 ..< selfArray.count {
+    for index in selfArray.indices {
       let currentChar = selfArray[index]
       let range = index ..< (Swift.min(index + arrTarget.count, selfArray.count))
       let ripped = Array(selfArray[range])

@@ -42,10 +42,10 @@ extension Megrez.Compositor {
   public func fetchOverlappingNodes(at givenLocation: Int) -> [(location: Int, node: Megrez.Node)] {
     var results = [(location: Int, node: Megrez.Node)]()
     let givenLocation = max(0, min(givenLocation, keys.count - 1))
-    guard !spans.isEmpty else { return results }
+    guard spans.indices.contains(givenLocation) else { return results }
 
     // 先獲取該位置的所有單字節點。
-    (1 ... max(spans[givenLocation].maxLength, 1)).forEach { theSpanLength in
+    spans[givenLocation].keys.sorted().forEach { theSpanLength in
       guard let node = spans[givenLocation][theSpanLength] else { return }
       Self.insertAnchor(spanIndex: givenLocation, node: node, to: &results)
     }
