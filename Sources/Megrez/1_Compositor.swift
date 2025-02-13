@@ -105,7 +105,6 @@ extension Megrez {
 
     /// 生成用以交給 GraphViz 診斷的資料檔案內容，純文字。
     public var dumpDOT: String {
-      // C# StringBuilder 與 Swift NSMutableString 能提供爆發性的效能。
       var strOutput = "digraph {\ngraph [ rankdir=LR ];\nBOS;\n"
       spans.enumerated().forEach { p, span in
         (0 ... span.maxLength).forEach { ni in
@@ -228,6 +227,48 @@ extension Megrez {
       }
       return true
     }
+
+    /// 根據當前狀況更新整個組字器的節點文脈。
+    /// - Parameter updateExisting: 是否根據目前的語言模型的資料狀態來對既有節點更新其內部的單元圖陣列資料。
+    /// 該特性可以用於「在選字窗內屏蔽了某個詞之後，立刻生效」這樣的軟體功能需求的實現。
+    /// - Returns: 新增或影響了多少個節點。如果返回「0」則表示可能發生了錯誤。
+    @discardableResult
+    public func update(updateExisting: Bool = false) -> Int {
+      let maxSpanLength = maxSpanLength
+      let rangeOfPositions = max(0, cursor - maxSpanLength) ..< min(
+        cursor + maxSpanLength,
+        keys.count
+      )
+      var nodesChanged = 0
+      rangeOfPositions.forEach { position in
+        let rangeOfLengths = 1 ... min(maxSpanLength, rangeOfPositions.upperBound - position)
+        rangeOfLengths.forEach { theLength in
+          guard position + theLength <= keys.count, position >= 0 else { return }
+          let joinedKeyArray = keys[position ..< (position + theLength)].map(\.description)
+          if (0 ..< spans.count).contains(position), let theNode = spans[position][theLength] {
+            if !updateExisting { return }
+            let unigrams = langModel.unigramsFor(keyArray: joinedKeyArray)
+            // 自動銷毀無效的節點。
+            if unigrams.isEmpty {
+              if theNode.keyArray.count == 1 { return }
+              spans[position][theNode.spanLength] = nil
+            } else {
+              theNode.syncingUnigrams(from: unigrams)
+            }
+            nodesChanged += 1
+            return
+          }
+          let unigrams = langModel.unigramsFor(keyArray: joinedKeyArray)
+          guard !unigrams.isEmpty else { return }
+          // 這裡原本用 SpanUnit.addNode 來完成的，但直接當作辭典來互動的話也沒差。
+          spans[position][theLength] = .init(
+            keyArray: joinedKeyArray, spanLength: theLength, unigrams: unigrams
+          )
+          nodesChanged += 1
+        }
+      }
+      return nodesChanged
+    }
   }
 }
 
@@ -293,49 +334,6 @@ extension Megrez.Compositor {
         spans[delta][theLength] = nil
       }
     }
-  }
-
-  /// 根據當前狀況更新整個組字器的節點文脈。
-  /// - Parameter updateExisting: 是否根據目前的語言模型的資料狀態來對既有節點更新其內部的單元圖陣列資料。
-  /// 該特性可以用於「在選字窗內屏蔽了某個詞之後，立刻生效」這樣的軟體功能需求的實現。
-  /// - Returns: 新增或影響了多少個節點。如果返回「0」則表示可能發生了錯誤。
-  @discardableResult
-  public func update(updateExisting: Bool = false) -> Int {
-    let maxSpanLength = maxSpanLength
-    let rangeOfPositions = max(0, cursor - maxSpanLength) ..< min(
-      cursor + maxSpanLength,
-      keys.count
-    )
-    var nodesChanged = 0
-    rangeOfPositions.forEach { position in
-      let rangeOfLengths = 1 ... min(maxSpanLength, rangeOfPositions.upperBound - position)
-      rangeOfLengths.forEach { theLength in
-        guard position + theLength <= keys.count, position >= 0 else { return }
-        let joinedKeyArray = keys[position ..< (position + theLength)].map(\.description)
-
-        if (0 ..< spans.count).contains(position), let theNode = spans[position][theLength] {
-          if !updateExisting { return }
-          let unigrams = langModel.unigramsFor(keyArray: joinedKeyArray)
-          // 自動銷毀無效的節點。
-          if unigrams.isEmpty {
-            if theNode.keyArray.count == 1 { return }
-            spans[position][theNode.spanLength] = nil
-          } else {
-            theNode.syncingUnigrams(from: unigrams)
-          }
-          nodesChanged += 1
-          return
-        }
-        let unigrams = langModel.unigramsFor(keyArray: joinedKeyArray)
-        guard !unigrams.isEmpty else { return }
-        // 這裡原本用 SpanUnit.addNode 來完成的，但直接當作辭典來互動的話也沒差。
-        spans[position][theLength] = .init(
-          keyArray: joinedKeyArray, spanLength: theLength, unigrams: unigrams
-        )
-        nodesChanged += 1
-      }
-    }
-    return nodesChanged
   }
 }
 
