@@ -357,7 +357,11 @@ extension Megrez {
     }
 
     /// 該軌格內可以允許的最大幅位長度。
-    public var maxSpanLength: Int = 10 { didSet { maxSpanLength = max(6, maxSpanLength) } }
+    public var maxSpanLength: Int = 10 {
+      didSet {
+        _ = (maxSpanLength < 6) ? maxSpanLength = 6 : dropNodesBeyondMaxSpanLength()
+      }
+    }
 
     /// 該組字器的標記器（副游標）位置。
     public var marker: Int = 0 { didSet { marker = max(0, min(marker, length)) } }
@@ -386,6 +390,16 @@ extension Megrez {
       spans.removeAll()
       cursor = 0
       marker = 0
+    }
+
+    public mutating func dropNodesBeyondMaxSpanLength() {
+      spans.indices.forEach { currentPos in
+        spans[currentPos].keys.forEach { currentSpanLength in
+          if currentSpanLength > maxSpanLength {
+            spans[currentPos].removeValue(forKey: currentSpanLength)
+          }
+        }
+      }
     }
   }
 }
