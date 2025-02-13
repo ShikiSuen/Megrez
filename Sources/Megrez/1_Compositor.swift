@@ -378,6 +378,10 @@ extension Megrez {
     /// 但是，為了防止萬一，就用了目前的方法來計算。
     public var length: Int { keys.count }
 
+    /// 該組字器的硬拷貝。
+    /// - Remark: 因為 Node 不是 Struct，所以會在 Compositor 被拷貝的時候無法被真實複製。
+    /// 這樣一來，Compositor 複製品當中的 Node 的變化會被反應到原先的 Compositor 身上。
+    /// 這在某些情況下會造成意料之外的混亂情況，所以需要引入一個拷貝用的建構子。
     public var hardCopy: Self {
       var newCopy = self
       newCopy.walkedNodes = walkedNodes.map(\.copy)
@@ -385,6 +389,10 @@ extension Megrez {
       return newCopy
     }
 
+    /// 重置包括游標在內的各項參數，且清空各種由組字器生成的內部資料。
+    ///
+    /// 將已經被插入的索引鍵陣列與幅位單元陣列（包括其內的節點）全部清空。
+    /// 最近一次的爬軌結果陣列也會被清空。游標跳轉換算表也會被清空。
     public mutating func clear() {
       walkedNodes.removeAll()
       keys.removeAll()
@@ -393,6 +401,7 @@ extension Megrez {
       marker = 0
     }
 
+    /// 清除所有幅長超過 MaxSpanLength 的節點。
     public mutating func dropNodesBeyondMaxSpanLength() {
       spans.indices.forEach { currentPos in
         spans[currentPos].keys.forEach { currentSpanLength in
